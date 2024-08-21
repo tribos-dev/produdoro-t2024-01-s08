@@ -2,8 +2,6 @@ package dev.wakandaacademy.produdoro.tarefa.application.api;
 
 import java.util.UUID;
 
-import javax.validation.Valid;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,6 +45,8 @@ public class TarefaRestController implements TarefaAPI {
 	@Override
 	public void mudaOrdemTarefa(String token, NovaPosicaoRequest novaPosicaoRequest, UUID idTarefa) {
 		log.info("[inicia] TarefaRestController - mudaOrdemTarefa");
+		String emailUsuario = getUsuarioByToken(token);
+		tarefaService.mudaOrdemTarefa(emailUsuario, novaPosicaoRequest, idTarefa);
 		log.info("[finaliza] TarefaRestController - mudaOrdemTarefa");
 	}
 
