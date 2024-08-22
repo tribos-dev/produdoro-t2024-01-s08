@@ -12,6 +12,8 @@ import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
+import javax.naming.spi.StateFactory;
+
 @RestController
 @Log4j2
 @RequiredArgsConstructor
@@ -33,6 +35,14 @@ public class TarefaRestController implements TarefaAPI {
 		Tarefa tarefa = tarefaService.detalhaTarefa(usuario,idTarefa);
 		log.info("[finaliza] TarefaRestController - detalhaTarefa");
 		return new TarefaDetalhadoResponse(tarefa);
+	}
+
+	@Override
+	public void concluiTarefa(String token, UUID idTarefa) {
+		log.info("[inicia] TarefaRestController - concluiTarefa");
+		String email = getUsuarioByToken(token);
+		tarefaService.concluiTarefa(email, idTarefa);
+		log.info("[Finish] TarefaRestController - concluiTarefa");
 	}
 
 	private String getUsuarioByToken(String token) {
