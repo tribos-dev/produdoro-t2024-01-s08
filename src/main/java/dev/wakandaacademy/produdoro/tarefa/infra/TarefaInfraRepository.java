@@ -44,15 +44,32 @@ public class TarefaInfraRepository implements TarefaRepository {
 	@Override
 	public int novaPosicao(UUID idUsuario) {
         log.info("[inicia] TarefaInfraRepository - novaPosicao");
-        List<Tarefa> tarefas = tarefaSpringMongoDBRepository.findAllById(idUsuario);
+        List<Tarefa> tarefas = buscaTarefasUsuarioPorId(idUsuario);
         log.info("[finaliza] TarefaInfraRepository - novaPosicao");
 		return tarefas.size();
 	}
 	
+	private List<Tarefa> buscaTarefasUsuarioPorId(UUID idUsuario) {
+        log.info("[inicia] TarefaInfraRepository - buscaTarefasUsuarioPorId");
+		List<Tarefa> tarefas = tarefaSpringMongoDBRepository.findAllByIdTarefa(idUsuario);
+        log.info("[finaliza] TarefaInfraRepository - buscaTarefasUsuarioPorId");
+		return tarefas;
+	}
+	
 	@Override
-	public void modificaOrdemTarefa(Tarefa terefa, NovaPosicaoRequest novaPosicaoRequest) {
+	public void modificaOrdemTarefa(Tarefa tarefa, NovaPosicaoRequest novaPosicaoRequest) {
         log.info("[inicia] TarefaInfraRepository - modificaOrdemTarefa");
-        
+        List<Tarefa> tarefas = buscaTarefasUsuarioPorId(tarefa.getIdUsuario());
+        validaNovaPosicao(tarefas.size(), tarefa.getPosicao(), novaPosicaoRequest.getNovaPosicao());
         log.info("[finaliza] TarefaInfraRepository - modificaOrdemTarefa");
+	}
+	
+	private void validaNovaPosicao(int tamanhoLista, int posicaoOrigem, int novaPosicao) {
+        log.info("[inicia] TarefaInfraRepository - validaNovaPosicao");
+        Optional.of(posicaoOrigem)
+        	.filter(posicao -> posicao >= 0 && posicao < tamanhoLista)
+        	.filter(posicao -> posicao != novaPosicao)
+        	.orElseThrow(() -> APIException.build(HttpStatus.BAD_REQUEST, "Posição inválida."));
+        log.info("[finaliza] TarefaInfraRepository - validaNovaPosicao");
 	}
 }
