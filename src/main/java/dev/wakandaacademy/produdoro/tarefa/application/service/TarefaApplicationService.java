@@ -49,7 +49,7 @@ public class TarefaApplicationService implements TarefaService {
 	public void mudaOrdemTarefa(String emailUsuario, NovaPosicaoRequest novaPosicaoRequest, UUID idTarefa) {
         log.info("[inicia] TarefaApplicationService - mudaOrdemTarefa");
         Tarefa terefa = detalhaTarefa(emailUsuario, idTarefa);
-        
+        tarefaRepository.mudaOrdemTarefa(terefa, novaPosicaoRequest);
         log.info("[finaliza] TarefaApplicationService - mudaOrdemTarefa");
 	}
 }

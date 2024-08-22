@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
 import dev.wakandaacademy.produdoro.handler.APIException;
+import dev.wakandaacademy.produdoro.tarefa.application.api.NovaPosicaoRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import lombok.RequiredArgsConstructor;
@@ -46,5 +47,12 @@ public class TarefaInfraRepository implements TarefaRepository {
         List<Tarefa> tarefas = tarefaSpringMongoDBRepository.findAllById(idUsuario);
         log.info("[finaliza] TarefaInfraRepository - novaPosicao");
 		return tarefas.size();
+	}
+	
+	@Override
+	public void mudaOrdemTarefa(Tarefa terefa, NovaPosicaoRequest novaPosicaoRequest) {
+        log.info("[inicia] TarefaInfraRepository - validaNovaPosicao");
+        
+        log.info("[finaliza] TarefaInfraRepository - validaNovaPosicao");
 	}
 }
