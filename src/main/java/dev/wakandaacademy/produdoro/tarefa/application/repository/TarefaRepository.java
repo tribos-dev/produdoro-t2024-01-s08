@@ -11,5 +11,5 @@ public interface TarefaRepository {
     Tarefa salva(Tarefa tarefa);
     Optional<Tarefa> buscaTarefaPorId(UUID idTarefa);
 	int novaPosicao(UUID idUsuario);
-	void mudaOrdemTarefa(Tarefa terefa, NovaPosicaoRequest novaPosicaoRequest);
+	void modificaOrdemTarefa(Tarefa terefa, NovaPosicaoRequest novaPosicaoRequest);
 }

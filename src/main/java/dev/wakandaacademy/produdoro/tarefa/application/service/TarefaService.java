@@ -9,5 +9,5 @@ import java.util.UUID;
 public interface TarefaService {
     TarefaIdResponse criaNovaTarefa(TarefaRequest tarefaRequest);
     Tarefa detalhaTarefa(String usuario, UUID idTarefa);
-	void mudaOrdemTarefa(String emailUsuario, NovaPosicaoRequest novaPosicaoRequest, UUID idTarefa);
+	void modificaOrdemTarefa(String emailUsuario, NovaPosicaoRequest novaPosicaoRequest, UUID idTarefa);
 }

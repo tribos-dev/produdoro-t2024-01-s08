@@ -50,9 +50,9 @@ public class TarefaInfraRepository implements TarefaRepository {
 	}
 	
 	@Override
-	public void mudaOrdemTarefa(Tarefa terefa, NovaPosicaoRequest novaPosicaoRequest) {
-        log.info("[inicia] TarefaInfraRepository - validaNovaPosicao");
+	public void modificaOrdemTarefa(Tarefa terefa, NovaPosicaoRequest novaPosicaoRequest) {
+        log.info("[inicia] TarefaInfraRepository - modificaOrdemTarefa");
         
-        log.info("[finaliza] TarefaInfraRepository - validaNovaPosicao");
+        log.info("[finaliza] TarefaInfraRepository - modificaOrdemTarefa");
 	}
 }

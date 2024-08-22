@@ -46,10 +46,10 @@ public class TarefaApplicationService implements TarefaService {
     }
     
 	@Override
-	public void mudaOrdemTarefa(String emailUsuario, NovaPosicaoRequest novaPosicaoRequest, UUID idTarefa) {
-        log.info("[inicia] TarefaApplicationService - mudaOrdemTarefa");
+	public void modificaOrdemTarefa(String emailUsuario, NovaPosicaoRequest novaPosicaoRequest, UUID idTarefa) {
+        log.info("[inicia] TarefaApplicationService - modificaOrdemTarefa");
         Tarefa terefa = detalhaTarefa(emailUsuario, idTarefa);
-        tarefaRepository.mudaOrdemTarefa(terefa, novaPosicaoRequest);
-        log.info("[finaliza] TarefaApplicationService - mudaOrdemTarefa");
+        tarefaRepository.modificaOrdemTarefa(terefa, novaPosicaoRequest);
+        log.info("[finaliza] TarefaApplicationService - modificaOrdemTarefa");
 	}
 }
