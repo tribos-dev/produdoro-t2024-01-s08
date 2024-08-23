@@ -3,6 +3,8 @@ package dev.wakandaacademy.produdoro.tarefa.infra;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -61,7 +63,19 @@ public class TarefaInfraRepository implements TarefaRepository {
         log.info("[inicia] TarefaInfraRepository - modificaOrdemTarefa");
         List<Tarefa> tarefas = buscaTarefasUsuarioPorId(tarefa.getIdUsuario());
         validaNovaPosicao(tarefas.size(), tarefa.getPosicao(), novaPosicaoRequest.getNovaPosicao());
+        int menorPosicao = (novaPosicaoRequest.getNovaPosicao() > tarefa.getPosicao()) ? tarefa.getPosicao() + 1: novaPosicaoRequest.getNovaPosicao();
+        int maiorPosicao = (novaPosicaoRequest.getNovaPosicao() < tarefa.getPosicao()) ? novaPosicaoRequest.getNovaPosicao() : tarefa.getPosicao();
+        List<Tarefa> tarefasAtualizadas = IntStream.range(menorPosicao, maiorPosicao)
+                .mapToObj(i -> novaPosicaoTarefa(tarefas.get(i), novaPosicaoRequest.getNovaPosicao()))
+                .collect(Collectors.toList());
         log.info("[finaliza] TarefaInfraRepository - modificaOrdemTarefa");
+	}
+	
+	private Tarefa novaPosicaoTarefa(Tarefa tarefa, int novaPosicao) {
+        log.info("[inicia] TarefaInfraRepository - novaPosicaoTarefa");
+        tarefa.editaNovaPosicao(novaPosicao);
+        log.info("[finaliza] TarefaInfraRepository - novaPosicaoTarefa");
+		return tarefa;
 	}
 	
 	private void validaNovaPosicao(int tamanhoLista, int posicaoOrigem, int novaPosicao) {
