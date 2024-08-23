@@ -65,10 +65,18 @@ public class TarefaInfraRepository implements TarefaRepository {
         validaNovaPosicao(tarefas.size(), tarefa.getPosicao(), novaPosicaoRequest.getNovaPosicao());
         int menorPosicao = (novaPosicaoRequest.getNovaPosicao() > tarefa.getPosicao()) ? tarefa.getPosicao() + 1: novaPosicaoRequest.getNovaPosicao();
         int maiorPosicao = (novaPosicaoRequest.getNovaPosicao() < tarefa.getPosicao()) ? novaPosicaoRequest.getNovaPosicao() : tarefa.getPosicao();
-        List<Tarefa> tarefasAtualizadas = IntStream.range(menorPosicao, maiorPosicao)
+        salvaVariasTarefas(novaPosicaoRequest, tarefas, menorPosicao, maiorPosicao);
+        log.info("[finaliza] TarefaInfraRepository - modificaOrdemTarefa");
+	}
+	
+	private void salvaVariasTarefas(NovaPosicaoRequest novaPosicaoRequest, List<Tarefa> tarefas, int menorPosicao,
+			int maiorPosicao) {
+        log.info("[inicia] TarefaInfraRepository - salvaVariasTarefas");
+		List<Tarefa> tarefasAtualizadas = IntStream.range(menorPosicao, maiorPosicao)
                 .mapToObj(i -> novaPosicaoTarefa(tarefas.get(i), novaPosicaoRequest.getNovaPosicao()))
                 .collect(Collectors.toList());
-        log.info("[finaliza] TarefaInfraRepository - modificaOrdemTarefa");
+        log.info("[finaliza] TarefaInfraRepository - salvaVariasTarefas");
+        tarefaSpringMongoDBRepository.saveAll(tarefasAtualizadas);
 	}
 	
 	private Tarefa novaPosicaoTarefa(Tarefa tarefa, int novaPosicao) {
