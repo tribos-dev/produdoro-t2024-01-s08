@@ -44,7 +44,7 @@ public class Usuario {
 		this.configuracao = new ConfiguracaoUsuario(configuracaoPadrao);
 	}
 
-	public void emailDoUsuario(Usuario usuarioPorEmail) {
+	public void pertenceAoUsuario(Usuario usuarioPorEmail) {
 		if (!this.getIdUsuario().equals(usuarioPorEmail.getIdUsuario())) {
 			throw APIException.build(HttpStatus.UNAUTHORIZED,
 					"Usuário(a) não autorizado(a) para a requisição solicitada.");
