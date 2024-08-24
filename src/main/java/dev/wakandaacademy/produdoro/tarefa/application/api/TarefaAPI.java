@@ -33,9 +33,9 @@ public interface TarefaAPI {
 	void deletaTodasSuasTarefas(@RequestHeader(name = "Authorization", required = true) String token,
 			@PathVariable UUID idUsuario);
 
-	@PatchMapping("/AtivaTarefa/{idTarefa}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    void ativaTarefa(@RequestHeader(name = "Authorization", required = true) String token,
-                    @PathVariable UUID idTarefa);
+	@PatchMapping("/{idTarefa}/ativa")
+	@ResponseStatus(code = HttpStatus.NO_CONTENT)
+	void defineTarefaComoAtiva(@RequestHeader(name = "Authorization", required = true) String token,
+			@PathVariable UUID idTarefa);
 
 }

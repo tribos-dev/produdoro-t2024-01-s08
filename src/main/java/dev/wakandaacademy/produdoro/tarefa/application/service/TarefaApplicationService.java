@@ -61,30 +61,30 @@ public class TarefaApplicationService implements TarefaService {
 	}
 
 	@Override
-	public void ativaTarefa(String usuario, UUID idTarefa) {
-		log.info("[inicia] TarefaApplicationService - ativaTarefa");
-		Usuario usuarioEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
-		validarTarefa(idTarefa, usuarioEmail);
-		Optional<Tarefa> tarefaAtivaOptional = tarefaRepository.buscaTarefaAtivada();
-		tarefaAtivaOptional.ifPresent(tarefaAtiva -> {
+	public void defineTarefaComoAtiva(UUID idTarefa, String usuarioEmail) {
+		log.info("[inicia] TarefaApplicationService - defineTarefaComoAtiva");
+		Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuarioEmail);
+		Tarefa tarefa = validarTarefa(idTarefa, usuarioPorEmail);
+		Optional<Tarefa> tarefaJaAtiva = 
+				tarefaRepository.buscaTarefaJaAtiva(usuarioPorEmail.getIdUsuario());
+		tarefaJaAtiva.ifPresent(tarefaAtiva -> {
 			tarefaAtiva.defineComoInativa();
+			tarefaRepository.salva(tarefaAtiva);
 		});
-		Tarefa novaTarefa = tarefaRepository.buscaTarefaPorId(idTarefa)
-				.orElseThrow(() -> APIException.build(HttpStatus.NOT_FOUND, "Tarefa não encontrada!"));
-		novaTarefa.defineComoAtiva();
-		tarefaRepository.salva(novaTarefa);
-		log.info("[finaliza] TarefaApplicationService - ativaTarefa");
+		tarefa.defineComoAtiva();
+		tarefaRepository.salva(tarefa);	
+		log.info("[finaliza] TarefaApplicationService - defineTarefaComoAtiva");
+
 	}
-
-	private Tarefa validarTarefa(UUID idTarefa, Usuario usuarioEmail) {
-			Tarefa tarefa =  tarefaRepository.buscaTarefaPorId(idTarefa)
-					.orElseThrow(() -> APIException.build(HttpStatus.NOT_FOUND, "Id Da Tarefa Inválido"));
-			tarefa.pertenceAoUsuario(usuarioEmail);
-			return tarefa;
-
-		}
-		
-	}
-
 	
 
+	private Tarefa validarTarefa(UUID idTarefa, Usuario usuarioEmail) {
+		Tarefa tarefa = tarefaRepository.buscaTarefaPorId(idTarefa)
+				.orElseThrow(() -> APIException.build(HttpStatus.NOT_FOUND, "Id Da Tarefa Inválido"));
+		tarefa.pertenceAoUsuario(usuarioEmail);
+		return tarefa;
+
+	}
+
+
+}
