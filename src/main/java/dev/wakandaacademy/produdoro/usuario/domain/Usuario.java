@@ -82,16 +82,16 @@ public class Usuario {
 		this.status = StatusUsuario.PAUSA_LONGA;
 	}
 
-	public void alteraStatusParaFoco(UUID idUsuario) {
+	public void mudaStatusParaFoco(UUID idUsuario) {
 		validaUsuario(idUsuario);
 		verificaStatusAtual();
+		mudaStatusParaFoco();
 	}
 
 	private void verificaStatusAtual() {
 		if (this.status.equals(StatusUsuario.FOCO)) {
 			throw APIException.build(HttpStatus.BAD_REQUEST, "Usuário já esta em FOCO!");
 		}
-		mudaStatusParaFoco();
 	}
 
 	private void mudaStatusParaFoco() {
