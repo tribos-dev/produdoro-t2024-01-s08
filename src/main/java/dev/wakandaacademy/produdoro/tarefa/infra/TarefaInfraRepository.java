@@ -71,26 +71,34 @@ public class TarefaInfraRepository implements TarefaRepository {
         log.info("[inicia] TarefaInfraRepository - modificaOrdemTarefa");
         List<Tarefa> tarefas = buscaTarefasUsuarioPorId(tarefa.getIdUsuario());
         validaNovaPosicao(tarefas.size(), tarefa.getPosicao(), novaPosicaoRequest.getNovaPosicao());
-        int menorPosicao = (novaPosicaoRequest.getNovaPosicao() > tarefa.getPosicao()) ? tarefa.getPosicao() + 1: novaPosicaoRequest.getNovaPosicao();
-        int maiorPosicao = (novaPosicaoRequest.getNovaPosicao() < tarefa.getPosicao()) ? novaPosicaoRequest.getNovaPosicao() : tarefa.getPosicao();
-        salvaVariasTarefas(tarefas, menorPosicao, maiorPosicao);
+        int menorPosicao = Math.min(tarefa.getPosicao(), novaPosicaoRequest.getNovaPosicao());
+        int maiorPosicao = Math.max(tarefa.getPosicao(), novaPosicaoRequest.getNovaPosicao());
+        salvaVariasTarefas(tarefas, tarefa.getPosicao(), novaPosicaoRequest.getNovaPosicao(), menorPosicao, maiorPosicao);
         log.info("[finaliza] TarefaInfraRepository - modificaOrdemTarefa");
 	}
 	
-	private void salvaVariasTarefas(List<Tarefa> tarefas, int menorPosicao,
-			int maiorPosicao) {
-        log.info("[inicia] TarefaInfraRepository - salvaVariasTarefas");
+	private void salvaVariasTarefas(List<Tarefa> tarefas, int origem, int destino, int menorPosicao, int maiorPosicao) {        
+		log.info("[inicia] TarefaInfraRepository - salvaVariasTarefas");
 		List<Tarefa> tarefasAtualizadas = IntStream.range(menorPosicao, maiorPosicao)
-                .mapToObj(i -> novaPosicaoTarefa(tarefas.get(i), i))
+                .mapToObj(posicao -> {
+                    return novaPosicaoTarefa(tarefas, origem, destino, posicao);
+                })
                 .collect(Collectors.toList());
         log.info("[finaliza] TarefaInfraRepository - salvaVariasTarefas");
         tarefaSpringMongoDBRepository.saveAll(tarefasAtualizadas);
 	}
 	
-	private Tarefa novaPosicaoTarefa(Tarefa tarefa, int novaPosicao) {
+	private Tarefa novaPosicaoTarefa(List<Tarefa> tarefas, int origem, int destino, int posicao) {
         log.info("[inicia] TarefaInfraRepository - novaPosicaoTarefa");
-        tarefa.editaNovaPosicao(novaPosicao);
+		Tarefa tarefa = destino < origem  ? atualizaTarefa(tarefas.get(posicao), posicao + 1) :  atualizaTarefa(tarefas.get(posicao + 1), posicao);
         log.info("[finaliza] TarefaInfraRepository - novaPosicaoTarefa");
+		return tarefa;
+	}
+	
+	private Tarefa atualizaTarefa(Tarefa tarefa, int novaPosicao) {
+        log.info("[inicia] TarefaInfraRepository - atualizaTarefa");
+        tarefa.editaNovaPosicao(novaPosicao);
+        log.info("[finaliza] TarefaInfraRepository - atualizaTarefa");
 		return tarefa;
 	}
 	
