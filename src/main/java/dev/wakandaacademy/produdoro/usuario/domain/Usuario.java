@@ -54,7 +54,7 @@ public class Usuario {
 		this.status = StatusUsuario.PAUSA_CURTA;
 	}
 
-	private void verificaSeJaEstaEmPausaCurta() {
+	public void verificaSeJaEstaEmPausaCurta() {
 		if (this.status.equals(StatusUsuario.PAUSA_CURTA)){
 			throw APIException.build(HttpStatus.BAD_REQUEST,"Usuário já está em Pausa Curta.");
 		}
