@@ -2,6 +2,7 @@ package dev.wakandaacademy.produdoro.tarefa.application.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,8 +16,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 import dev.wakandaacademy.produdoro.DataHelper;
+import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.api.NovaPosicaoRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
@@ -105,4 +108,19 @@ class TarefaApplicationServiceTest {
     	return novaPosicaoRequest;
     }
     
+    
+    @Test
+    void erroAoModificarOrdemTarefaComIdTarefaInvalido() {
+        Usuario usuario = DataHelper.createUsuario();
+        UUID idInvalido = UUID.randomUUID();
+        NovaPosicaoRequest novaPosicaoRequest = getNovaPosicaoRequest();
+        when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefaPorId(any())).thenReturn(Optional.empty());
+
+        APIException ex = assertThrows(APIException.class, 
+	            () -> tarefaApplicationService.modificaOrdemTarefa(usuario.getEmail(), novaPosicaoRequest, idInvalido));
+        
+        assertEquals("Tarefa não encontrada!", ex.getMessage());
+	    assertEquals(HttpStatus.NOT_FOUND, ex.getStatusException());
+    }
 }
