@@ -27,6 +27,7 @@ import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaReposito
 import dev.wakandaacademy.produdoro.tarefa.domain.StatusTarefa;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioRepository;
+import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 
 @ExtendWith(MockitoExtension.class)
@@ -122,5 +123,24 @@ class TarefaApplicationServiceTest {
         
         assertEquals("Tarefa não encontrada!", ex.getMessage());
 	    assertEquals(HttpStatus.NOT_FOUND, ex.getStatusException());
+    }
+    
+    @Test
+    void erroAoModificarOrdemTarefaQuandoTarefaNaoPertenceAoUsuario() {
+        Usuario usuario = getCreateUsuario();
+        Tarefa tarefa = DataHelper.createTarefa();
+        NovaPosicaoRequest novaPosicaoRequest = getNovaPosicaoRequest();
+        when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefaPorId(any())).thenReturn(Optional.of(tarefa));
+
+        APIException ex = assertThrows(APIException.class, 
+	            () -> tarefaApplicationService.modificaOrdemTarefa(usuario.getEmail(), novaPosicaoRequest, tarefa.getIdTarefa()));
+        
+        assertEquals("Usuário não é dono da Tarefa solicitada!", ex.getMessage());
+	    assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusException());
+    }
+    
+    public Usuario getCreateUsuario() {
+        return Usuario.builder().email("teste@email.com").status(StatusUsuario.PAUSA_LONGA).idUsuario(UUID.randomUUID()).build();
     }
 }
