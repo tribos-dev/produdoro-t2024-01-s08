@@ -54,7 +54,7 @@ public class TarefaInfraRepository implements TarefaRepository {
             if (this.contagemPomodoroPausaCurta < 3){
                 usuarioPorEmail.mudaStatusPausaCurta();
             } else {
-                usuarioPorEmail.mudaStatusParaPausaLonga();
+                usuarioPorEmail.mudaStatusPausaLonga();
                 this.contagemPomodoroPausaCurta = 0;
             }
         } else {
