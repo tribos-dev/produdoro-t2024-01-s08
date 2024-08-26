@@ -7,6 +7,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +18,8 @@ import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.api.NovaPosicaoRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
+import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
+import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
@@ -23,6 +29,8 @@ import lombok.extern.log4j.Log4j2;
 public class TarefaInfraRepository implements TarefaRepository {
 
     private final TarefaSpringMongoDBRepository tarefaSpringMongoDBRepository;
+    private final MongoTemplate mongoTemplate;
+    private Integer contagemPomodoroPausaCurta = 0;
 
     @Override
     public Tarefa salva(Tarefa tarefa) {
@@ -94,4 +102,24 @@ public class TarefaInfraRepository implements TarefaRepository {
         	.orElseThrow(() -> APIException.build(HttpStatus.BAD_REQUEST, "Posição inválida."));
         log.info("[finaliza] TarefaInfraRepository - validaNovaPosicao");
 	}
+
+    @Override
+    public void processaStatusEContadorPomodoro(Usuario usuarioPorEmail) {
+        log.info("[inicia] - TarefaInfraRepository - processaStatusEContadorPomodoro");
+        if(usuarioPorEmail.getStatus().equals(StatusUsuario.FOCO)){
+            if (this.contagemPomodoroPausaCurta < 3){
+                usuarioPorEmail.mudaStatusPausaCurta();
+            } else {
+                usuarioPorEmail.mudaStatusPausaLonga();
+                this.contagemPomodoroPausaCurta = 0;
+            }
+        } else {
+            usuarioPorEmail.alteraStatusParaFoco(usuarioPorEmail.getIdUsuario());
+            this.contagemPomodoroPausaCurta++;
+        }
+        Query query = Query.query(Criteria.where("idUsuario").is(usuarioPorEmail.getIdUsuario()));
+        Update updateUsuario = Update.update("status", usuarioPorEmail.getStatus());
+        mongoTemplate.updateMulti(query, updateUsuario, Usuario.class);
+        log.info("[finaliza] - TarefaInfraRepository - processaStatusEContadorPomodoro");
+    }
 }
