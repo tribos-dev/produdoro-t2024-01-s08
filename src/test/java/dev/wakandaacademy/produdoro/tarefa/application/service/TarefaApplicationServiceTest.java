@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,22 +45,23 @@ class TarefaApplicationServiceTest {
 	@Mock
 	UsuarioRepository usuarioRepository;
 
-//	@Test
-//	void deveRetornarIdTarefaNovaCriada() {
-//		TarefaRequest request = getTarefaRequest();
-//		when(tarefaRepository.salva(any())).thenReturn(new Tarefa(request));
-//
-//		TarefaIdResponse response = tarefaApplicationService.criaNovaTarefa(request);
-//
-//		assertNotNull(response);
-//		assertEquals(TarefaIdResponse.class, response.getClass());
-//		assertEquals(UUID.class, response.getIdTarefa().getClass());
-//	}
-//
-//	public TarefaRequest getTarefaRequest() {
-//		TarefaRequest request = new TarefaRequest("tarefa 1", UUID.randomUUID(), null, null, 0);
-//		return request;
-//	}
+	@Test
+	@DisplayName("Deve retornar Id da tarefa nova criada.")
+	void deveRetornarIdTarefaNovaCriada() {
+		TarefaRequest request = getTarefaRequest();
+		when(tarefaRepository.salva(any())).thenReturn(new Tarefa(request));
+
+		TarefaIdResponse response = tarefaApplicationService.criaNovaTarefa(request);
+
+		assertNotNull(response);
+		assertEquals(TarefaIdResponse.class, response.getClass());
+		assertEquals(UUID.class, response.getIdTarefa().getClass());
+	}
+
+	public TarefaRequest getTarefaRequest() {
+		TarefaRequest request = new TarefaRequest("tarefa 1", UUID.randomUUID(), null, null, 0);
+		return request;
+	}
 
 	@Test
 	@DisplayName("Deve deletar todas as tarefas do usuario.")
@@ -72,6 +74,22 @@ class TarefaApplicationServiceTest {
 		tarefaApplicationService.deletaTodasTarefas(usuario.getEmail(), usuario.getIdUsuario());
 		verify(tarefaRepository, times(1)).deletaTodasTarefas(tarefas);
 	}
+
+//	@Test
+//	@DisplayName("Não deve deletar tarefas do usuario.")
+//	void naoDeveDeletarTarefas() {
+//		Usuario usuario = DataHelper.createUsuario();
+//		List<Tarefa> tarefas = DataHelper.createListTarefa();
+//		when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
+//		when(usuarioRepository.buscaUsuarioPorId(any())).thenReturn(usuario);
+//		when(tarefaRepository.buscaTarefaPorUsuario(any())).thenReturn(tarefas);
+//		// Simulando uma condição onde as tarefas não podem ser deletadas
+//		doThrow(new RuntimeException("Erro ao deletar tarefas")).when(tarefaRepository).deletaTodasTarefas(tarefas);
+//		assertThrows(RuntimeException.class, () -> {
+//			tarefaApplicationService.deletaTodasTarefas(usuario.getEmail(), usuario.getIdUsuario());
+//		});
+//		verify(tarefaRepository, times(1)).deletaTodasTarefas(tarefas);
+//	}
 
 	@Test
 	@DisplayName("Deve definir a tarefa do usuário como ativa.")
@@ -96,7 +114,7 @@ class TarefaApplicationServiceTest {
 
 	@Test
 	@DisplayName("Não deve definir a tarefa do usuário como ativa.")
-	void nãoDeveDefinirTarefaComoAtiva() {
+	void naoDeveDefinirTarefaComoAtiva() {
 		Usuario usuario = DataHelper.createUsuario();
 		UUID idTarefaInvalido = UUID.randomUUID();
 		when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
