@@ -52,13 +52,17 @@ public class Tarefa {
 	}
 
 	public void pertenceAoUsuario(Usuario usuarioPorEmail) {
-		if(!this.idUsuario.equals(usuarioPorEmail.getIdUsuario())) {
+		if (!this.idUsuario.equals(usuarioPorEmail.getIdUsuario())) {
 			throw APIException.build(HttpStatus.UNAUTHORIZED, "Usuário não é dono da Tarefa solicitada!");
 		}
 	}
 
+	public void concluiTarefa() {
+		this.status = StatusTarefa.CONCLUIDA;
+	}
+
 	public void incrementaPomodoro(Usuario usuarioPorEmail) {
-		if (usuarioPorEmail.getStatus().equals(StatusUsuario.FOCO)){
+		if (usuarioPorEmail.getStatus().equals(StatusUsuario.FOCO)) {
 			this.contagemPomodoro++;
 		}
 	}
