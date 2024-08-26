@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import dev.wakandaacademy.produdoro.DataHelper;
+import dev.wakandaacademy.produdoro.tarefa.application.api.NovaPosicaoRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
@@ -85,4 +86,23 @@ class TarefaApplicationServiceTest {
         TarefaRequest request = new TarefaRequest("tarefa 1", UUID.randomUUID(), null, null, 0);
         return request;
     }
+    
+    @Test
+    void deveModificarOrdemTarefa() {
+        Usuario usuario = DataHelper.createUsuario();
+        Tarefa tarefa = DataHelper.createTarefa();
+        NovaPosicaoRequest novaPosicaoRequest = getNovaPosicaoRequest();
+        when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefaPorId(any())).thenReturn(Optional.of(tarefa));
+
+        tarefaApplicationService.modificaOrdemTarefa(usuario.getEmail(), novaPosicaoRequest, tarefa.getIdTarefa());
+        
+        verify(tarefaRepository, times(1)).salva(tarefa);
+    }
+    
+    public NovaPosicaoRequest getNovaPosicaoRequest() {
+    	NovaPosicaoRequest novaPosicaoRequest = new NovaPosicaoRequest(1);
+    	return novaPosicaoRequest;
+    }
+    
 }
