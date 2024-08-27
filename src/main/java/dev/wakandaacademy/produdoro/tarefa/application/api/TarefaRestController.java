@@ -35,6 +35,22 @@ public class TarefaRestController implements TarefaAPI {
 		return new TarefaDetalhadoResponse(tarefa);
 	}
 
+	@Override
+	public void concluiTarefa(String token, UUID idTarefa) {
+		log.info("[inicia] TarefaRestController - concluiTarefa");
+		String email = getUsuarioByToken(token);
+		tarefaService.concluiTarefa(email, idTarefa);
+		log.info("[Finish] TarefaRestController - concluiTarefa");
+	}
+
+	@Override
+	public void imcrementaPomodoro(String token, UUID idTarefa) {
+		log.info("[start] - TarefaRestController - imcrementaPomodoro");
+		String usuario = getUsuarioByToken(token);
+		tarefaService.incrementaPomodoro(usuario, idTarefa);
+		log.info("[finish] - TarefaRestController - imcrementaPomodoro");
+	}
+
 	private String getUsuarioByToken(String token) {
 		log.debug("[token] {}", token);
 		String usuario = tokenService.getUsuarioByBearerToken(token)
