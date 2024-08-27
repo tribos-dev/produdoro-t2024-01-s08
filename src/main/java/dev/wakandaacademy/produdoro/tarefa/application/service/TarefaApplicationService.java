@@ -1,6 +1,7 @@
 package dev.wakandaacademy.produdoro.tarefa.application.service;
 
 import dev.wakandaacademy.produdoro.handler.APIException;
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaDetalhadaListResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
@@ -12,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -59,5 +61,16 @@ public class TarefaApplicationService implements TarefaService {
         tarefaRepository.salva(tarefa);
         tarefaRepository.processaStatusEContadorPomodoro(usuarioPorEmail);
         log.info("[finish] - TarefaApplicationService - incrementaPomodoro");
+    }
+
+    @Override
+    public List<TarefaDetalhadaListResponse> listaTodasTarefasDoUsuario(String email, UUID idUsuario) {
+        log.info("[inicia] TarefaApplicationService - listaTodasTarefasDoUsuario");
+        Usuario usuario = usuarioRepository.buscaUsuarioPorEmail(email);
+        usuarioRepository.buscaUsuarioPorId(idUsuario);
+        usuario.validaUsuario(idUsuario);
+        List<Tarefa> tarefas = tarefaRepository.buscaTarefasDoIdUsuario(idUsuario);
+        log.info("[Finish] TarefaApplicationService - listaTodasTarefasDoUsuario");
+        return TarefaDetalhadaListResponse.converte(tarefas);
     }
 }
