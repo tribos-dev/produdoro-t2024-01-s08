@@ -44,21 +44,6 @@ public class TarefaApplicationService implements TarefaService {
 		return tarefa;
 	}
 
-	@Override
-	public void deletaTodasTarefas(String emailUsuario, UUID idUsuario) {
-		log.info("[inicia] TarefaApplicationService - deletaTodasTarefas");
-		Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(emailUsuario);
-		log.info("[usuarioPorEmail] {}", usuarioPorEmail);
-		Usuario usuario = usuarioRepository.buscaUsuarioPorId(idUsuario);
-		usuario.pertenceAoUsuario(usuarioPorEmail);
-		List<Tarefa> tarefasUsuario = tarefaRepository.buscaTarefaPorUsuario(usuario.getIdUsuario());
-		if (tarefasUsuario.isEmpty()) {
-			throw APIException.build(HttpStatus.BAD_REQUEST, "Usuário não possui tarefa(as) cadastrada(as)");
-		}
-		tarefaRepository.deletaTodasTarefas(tarefasUsuario);
-		log.info("[finaliza] TarefaApplicationService - deletaTodasTarefas");
-
-	}
 
 	@Override
 	public void defineTarefaComoAtiva(UUID idTarefa, String usuarioEmail) {
@@ -86,5 +71,23 @@ public class TarefaApplicationService implements TarefaService {
 
 	}
 
+    @Override
+    public void concluiTarefa(String email, UUID idTarefa) {
+        log.info("[inicia] TarefaApplicationService - concluiTarefa");
+        Tarefa tarefa = detalhaTarefa(email, idTarefa);
+        tarefa.concluiTarefa();
+        tarefaRepository.salva(tarefa);
+        log.info("[Finish] TarefaApplicationService - concluiTarefa");
+    }
 
+    @Override
+    public void incrementaPomodoro(String usuario, UUID idTarefa) {
+        log.info("[start] - TarefaApplicationService - incrementaPomodoro");
+        Tarefa tarefa = detalhaTarefa(usuario, idTarefa);
+        Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuario);
+        tarefa.incrementaPomodoro(usuarioPorEmail);
+        tarefaRepository.salva(tarefa);
+        tarefaRepository.processaStatusEContadorPomodoro(usuarioPorEmail);
+        log.info("[finish] - TarefaApplicationService - incrementaPomodoro");
+    }
 }

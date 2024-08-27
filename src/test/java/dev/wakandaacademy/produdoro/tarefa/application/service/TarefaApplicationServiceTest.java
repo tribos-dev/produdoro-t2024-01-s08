@@ -28,6 +28,7 @@ import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
 import dev.wakandaacademy.produdoro.tarefa.domain.StatusAtivacaoTarefa;
+import dev.wakandaacademy.produdoro.tarefa.domain.StatusTarefa;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioRepository;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
@@ -57,39 +58,13 @@ class TarefaApplicationServiceTest {
 		assertEquals(TarefaIdResponse.class, response.getClass());
 		assertEquals(UUID.class, response.getIdTarefa().getClass());
 	}
+	
 
 	public TarefaRequest getTarefaRequest() {
 		TarefaRequest request = new TarefaRequest("tarefa 1", UUID.randomUUID(), null, null, 0);
 		return request;
 	}
 
-	@Test
-	@DisplayName("Deve deletar todas as tarefas do usuario.")
-	void deveDeletarTodasSuasTarefas() {
-		Usuario usuario = DataHelper.createUsuario();
-		List<Tarefa> tarefas = DataHelper.createListTarefa();
-		when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
-		when(usuarioRepository.buscaUsuarioPorId(any())).thenReturn(usuario);
-		when(tarefaRepository.buscaTarefaPorUsuario(any())).thenReturn(tarefas);
-		tarefaApplicationService.deletaTodasTarefas(usuario.getEmail(), usuario.getIdUsuario());
-		verify(tarefaRepository, times(1)).deletaTodasTarefas(tarefas);
-	}
-
-//	@Test
-//	@DisplayName("Não deve deletar tarefas do usuario.")
-//	void naoDeveDeletarTarefas() {
-//		Usuario usuario = DataHelper.createUsuario();
-//		List<Tarefa> tarefas = DataHelper.createListTarefa();
-//		when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
-//		when(usuarioRepository.buscaUsuarioPorId(any())).thenReturn(usuario);
-//		when(tarefaRepository.buscaTarefaPorUsuario(any())).thenReturn(tarefas);
-//		// Simulando uma condição onde as tarefas não podem ser deletadas
-//		doThrow(new RuntimeException("Erro ao deletar tarefas")).when(tarefaRepository).deletaTodasTarefas(tarefas);
-//		assertThrows(RuntimeException.class, () -> {
-//			tarefaApplicationService.deletaTodasTarefas(usuario.getEmail(), usuario.getIdUsuario());
-//		});
-//		verify(tarefaRepository, times(1)).deletaTodasTarefas(tarefas);
-//	}
 
 	@Test
 	@DisplayName("Deve definir a tarefa do usuário como ativa.")
@@ -127,5 +102,33 @@ class TarefaApplicationServiceTest {
 		verify(tarefaRepository, never()).buscaTarefaJaAtiva(usuario.getIdUsuario());
 		verify(tarefaRepository, never()).salva(any(Tarefa.class));
 	}
+    @Test
+    void deveRetornarTarefaConcluida() {
+        Usuario usuario = DataHelper.createUsuario();
+        UUID idTarefa = UUID.randomUUID();
+        Tarefa tarefa = Tarefa.builder()
+                .idTarefa(UUID.randomUUID())
+                .status(StatusTarefa.A_FAZER)
+                .idUsuario(usuario.getIdUsuario())
+                .build();
+        when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefaPorId(tarefa.getIdTarefa())).thenReturn(Optional.of(tarefa));
+        when(tarefaRepository.salva(tarefa)).thenReturn(tarefa);
+        tarefaApplicationService.concluiTarefa(usuario.getEmail(), tarefa.getIdTarefa());
+        assertEquals(StatusTarefa.CONCLUIDA, tarefa.getStatus());
+    }
+
+    @Test
+    void deveIncrementarPomodoroUmaTarefa() {
+        Usuario usuario = DataHelper.createUsuario();
+        Tarefa tarefa = DataHelper.createTarefa();
+
+        when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefaPorId(any())).thenReturn(Optional.of(tarefa));
+
+        tarefaApplicationService.incrementaPomodoro(usuario.getEmail(), tarefa.getIdTarefa());
+
+        verify(tarefaRepository, times(1)).salva(tarefa);
+    }
 
 }
