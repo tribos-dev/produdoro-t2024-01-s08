@@ -45,6 +45,9 @@ public class TarefaApplicationService implements TarefaService {
     @Override
     public void editaTarefa(String email, UUID idTarefa, TarefaAlteracaoRequest tarefaAlteracaoRequest) {
         log.info("[inicia] TarefaApplicationService - editaTarefa");
+        Tarefa tarefa = detalhaTarefa(email, idTarefa);
+        tarefa.editaTarefa(tarefaAlteracaoRequest);
+        tarefaRepository.salva(tarefa);
         log.info("[finish] TarefaApplicationService - editaTarefa");
     }
 }
