@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -65,5 +66,12 @@ public class TarefaInfraRepository implements TarefaRepository {
         Update updateUsuario = Update.update("status", usuarioPorEmail.getStatus());
         mongoTemplate.updateMulti(query, updateUsuario, Usuario.class);
         log.info("[finaliza] - TarefaInfraRepository - processaStatusEContadorPomodoro");
+    }
+    @Override
+    public List<Tarefa> buscaTarefasDoIdUsuario(UUID idUsuario) {
+        log.info("[inicia] TarefaInfraRepository - buscaTarefasDoIdUsuario");
+        List<Tarefa> tarefas = tarefaSpringMongoDBRepository.findAllByIdUsuario(idUsuario);
+        log.info("[finaliza] TarefaInfraRepository - buscaTarefasDoIdUsuario");
+        return tarefas;
     }
 }
