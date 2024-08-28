@@ -44,6 +44,10 @@ public class DataHelper {
         return tarefaReq;
     }
 
+    public static List<Tarefa> createListTarefaVazia() {
+        return List.of();
+    }
+
     public static List<Tarefa> createListTarefa() {
         return List.of(Tarefa.builder().idTarefa(UUID.randomUUID()).descricao("tarefa 1").idUsuario(usuario1).build(),
                 Tarefa.builder().build(),
