@@ -1,23 +1,12 @@
 package dev.wakandaacademy.produdoro.tarefa.application.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-<<<<<<< HEAD
-import java.util.ArrayList;
-import java.util.List;
-=======
->>>>>>> dev
-import java.util.Optional;
-import java.util.UUID;
-
 import dev.wakandaacademy.produdoro.DataHelper;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaAlteracaoRequest;
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
+import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
 import dev.wakandaacademy.produdoro.tarefa.domain.StatusTarefa;
+import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioRepository;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 import org.junit.jupiter.api.Test;
@@ -26,14 +15,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import dev.wakandaacademy.produdoro.DataHelper;
-import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
-import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
-import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
-import dev.wakandaacademy.produdoro.tarefa.domain.StatusTarefa;
-import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
-import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioRepository;
-import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TarefaApplicationServiceTest {
@@ -62,8 +50,6 @@ class TarefaApplicationServiceTest {
         assertEquals(UUID.class, response.getIdTarefa().getClass());
     }
 
-<<<<<<< HEAD
-=======
     @Test
     void deveRetornarTarefaConcluida() {
         Usuario usuario = DataHelper.createUsuario();
@@ -93,7 +79,25 @@ class TarefaApplicationServiceTest {
         verify(tarefaRepository, times(1)).salva(tarefa);
     }
 
->>>>>>> dev
+    @Test
+    void deveRetornarTarefaAlterada() {
+        Usuario usuario = DataHelper.createUsuario();
+        Tarefa tarefa = Tarefa.builder()
+                .idTarefa(UUID.randomUUID())
+                .descricao("edita")
+                .status(StatusTarefa.A_FAZER)
+                .idUsuario(usuario.getIdUsuario())
+                .build();
+        String requestAlterada = "minha request alterada";
+        when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefaPorId(tarefa.getIdTarefa())).thenReturn(Optional.of(tarefa));
+        when(tarefaRepository.salva(tarefa)).thenReturn(tarefa);
+        tarefaApplicationService.editaTarefa(usuario.getEmail(), tarefa.getIdTarefa(), TarefaAlteracaoRequest.builder()
+                        .descricao(requestAlterada)
+                .build());
+        assertEquals("minha request alterada", tarefa.getDescricao());
+    }
+
     public TarefaRequest getTarefaRequest() {
         TarefaRequest request = new TarefaRequest("tarefa 1", UUID.randomUUID(), null, null, 0);
         return request;
