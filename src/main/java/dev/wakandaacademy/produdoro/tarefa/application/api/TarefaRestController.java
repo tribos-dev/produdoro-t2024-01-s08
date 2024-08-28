@@ -68,5 +68,4 @@ public class TarefaRestController implements TarefaAPI {
 		log.info("[finish] - TarefaRestController - listaTodasTarefasDoUsuario");
 		return tarefas;
 	}
-
 }

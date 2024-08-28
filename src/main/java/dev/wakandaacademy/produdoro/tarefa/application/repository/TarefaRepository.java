@@ -8,10 +8,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface TarefaRepository {
-
     Tarefa salva(Tarefa tarefa);
     Optional<Tarefa> buscaTarefaPorId(UUID idTarefa);
-
     void processaStatusEContadorPomodoro(Usuario usuarioPorEmail);
     List<Tarefa> buscaTarefasDoIdUsuario(UUID idUsuario);
 }
