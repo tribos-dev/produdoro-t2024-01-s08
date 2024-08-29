@@ -50,6 +50,13 @@ public class Usuario {
 					"Usuário(a) não autorizado(a) para a requisição solicitada.");
 		}
 	}
+	
+	public void pertenceAoUsuario(Usuario usuarioPorEmail) {
+		if (!this.idUsuario.equals(usuarioPorEmail.getIdUsuario())) {
+			throw APIException.build(HttpStatus.UNAUTHORIZED,
+					"Usuário(a) não autorizado(a) para a requisição solicitada!");
+		}
+	}
 
 	public void mudaStatusParaPausaCurta(UUID idUsuario) {
 		pertenceAoUsuario(idUsuario);
@@ -89,16 +96,16 @@ public class Usuario {
 		this.status = StatusUsuario.PAUSA_LONGA;
 	}
 
-	public void alteraStatusParaFoco(UUID idUsuario) {
+	public void mudaStatusParaFoco(UUID idUsuario) {
 		validaUsuario(idUsuario);
 		verificaStatusAtual();
+		mudaStatusParaFoco();
 	}
 
 	private void verificaStatusAtual() {
 		if (this.status.equals(StatusUsuario.FOCO)) {
 			throw APIException.build(HttpStatus.BAD_REQUEST, "Usuário já esta em FOCO!");
 		}
-		mudaStatusParaFoco();
 	}
 
 	private void mudaStatusParaFoco() {

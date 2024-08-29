@@ -2,6 +2,7 @@ package dev.wakandaacademy.produdoro.tarefa.application.repository;
 
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
+import lombok.NonNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,4 +15,10 @@ public interface TarefaRepository {
 	List<Tarefa> buscaTarefaPorUsuario(UUID idUsuario);
 	void deletaTodasTarefas(List<Tarefa> tarefasUsuario);
     void processaStatusEContadorPomodoro(Usuario usuarioPorEmail);
+    Optional<Tarefa> buscaTarefaJaAtiva(UUID idUsuario);
+    List<Tarefa> buscaTarefasConcluidas(UUID idUsuario);
+    void deletaVariasTarefas(List<Tarefa> tarefasConcluidas);
+    List<Tarefa> buscarTarefasPorIdUsuario(UUID idUsuario);
+    void atualizaPosicaoDasTarefas(List<Tarefa> tarefasDoUsuario);
+    int contarTarefas(@NonNull UUID idUsuario);
 }
