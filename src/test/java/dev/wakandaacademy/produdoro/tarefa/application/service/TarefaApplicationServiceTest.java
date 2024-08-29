@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,7 +44,7 @@ class TarefaApplicationServiceTest {
     @Test
     void deveRetornarIdTarefaNovaCriada() {
         TarefaRequest request = getTarefaRequest();
-        when(tarefaRepository.salva(any())).thenReturn(new Tarefa(request));
+        when(tarefaRepository.salva(any())).thenReturn(new Tarefa(request, 0));
 
         TarefaIdResponse response = tarefaApplicationService.criaNovaTarefa(request);
 
@@ -84,5 +85,19 @@ class TarefaApplicationServiceTest {
     public TarefaRequest getTarefaRequest() {
         TarefaRequest request = new TarefaRequest("tarefa 1", UUID.randomUUID(), null, null, 0);
         return request;
+    }
+
+    @Test
+    void deveDeletarTarefasConcluidas(){
+        Usuario usuario = DataHelper.createUsuario();
+        List<Tarefa> tarefasConcluidas = DataHelper.createTarefasConcluidas();
+        List<Tarefa> tarefas = DataHelper.createListTarefa();
+        when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
+        when(usuarioRepository.buscaUsuarioPorId(any())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefasConcluidas(any())).thenReturn(tarefasConcluidas);
+        when(tarefaRepository.buscarTarefasPorIdUsuario(any())).thenReturn(tarefas);
+        tarefaApplicationService.deletaTarefasConcluidas(usuario.getEmail(), usuario.getIdUsuario());
+        verify(tarefaRepository, times(1)).deletaVariasTarefas(tarefasConcluidas);
+        verify(tarefaRepository, times(1)).atualizaPosicaoDasTarefas(tarefas);
     }
 }

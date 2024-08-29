@@ -26,24 +26,30 @@ import org.springframework.http.HttpStatus;
 @ToString
 @Document(collection = "Usuario")
 public class Usuario {
-	@Id
-	private UUID idUsuario;
-	@Email
-	@Indexed(unique = true)
-	private String email;
-	private ConfiguracaoUsuario configuracao;
-	@Builder.Default
-	private StatusUsuario status = StatusUsuario.FOCO;
-	@Builder.Default
-	private Integer quantidadePomodorosPausaCurta = 0;
+    @Id
+    private UUID idUsuario;
+    @Email
+    @Indexed(unique = true)
+    private String email;
+    private ConfiguracaoUsuario configuracao;
+    @Builder.Default
+    private StatusUsuario status = StatusUsuario.FOCO;
+    @Builder.Default
+    private Integer quantidadePomodorosPausaCurta = 0;
 
-	public Usuario(UsuarioNovoRequest usuarioNovo, ConfiguracaoPadrao configuracaoPadrao) {
-		this.idUsuario = UUID.randomUUID();
-		this.email = usuarioNovo.getEmail();
-		this.status = StatusUsuario.FOCO;
-		this.configuracao = new ConfiguracaoUsuario(configuracaoPadrao);
-	}
+    public Usuario(UsuarioNovoRequest usuarioNovo, ConfiguracaoPadrao configuracaoPadrao) {
+        this.idUsuario = UUID.randomUUID();
+        this.email = usuarioNovo.getEmail();
+        this.status = StatusUsuario.FOCO;
+        this.configuracao = new ConfiguracaoUsuario(configuracaoPadrao);
+    }
 
+    public void pertenceAoUsuario(Usuario usuarioPorEmail) {
+        if (!this.idUsuario.equals(usuarioPorEmail.getIdUsuario())) {
+            throw APIException.build(HttpStatus.UNAUTHORIZED,
+                    "Usuário(a) não autorizado(a) para a requisição solicitada!");
+        }
+    }
 	public void mudaStatusParaPausaCurta(UUID idUsuario) {
 		pertenceAoUsuario(idUsuario);
 		verificaSeJaEstaEmPausaCurta();

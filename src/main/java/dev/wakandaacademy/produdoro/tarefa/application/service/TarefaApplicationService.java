@@ -12,6 +12,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,7 +25,8 @@ public class TarefaApplicationService implements TarefaService {
     @Override
     public TarefaIdResponse criaNovaTarefa(TarefaRequest tarefaRequest) {
         log.info("[inicia] TarefaApplicationService - criaNovaTarefa");
-        Tarefa tarefaCriada = tarefaRepository.salva(new Tarefa(tarefaRequest));
+        int novaPosicao = tarefaRepository.contarTarefas(tarefaRequest.getIdUsuario());
+        Tarefa tarefaCriada = tarefaRepository.salva(new Tarefa(tarefaRequest, novaPosicao));
         log.info("[finaliza] TarefaApplicationService - criaNovaTarefa");
         return TarefaIdResponse.builder().idTarefa(tarefaCriada.getIdTarefa()).build();
     }
@@ -39,6 +41,22 @@ public class TarefaApplicationService implements TarefaService {
         tarefa.pertenceAoUsuario(usuarioPorEmail);
         log.info("[finaliza] TarefaApplicationService - detalhaTarefa");
         return tarefa;
+    }
+
+    @Override
+    public void deletaTarefasConcluidas(String email, UUID idUsuario) {
+        log.info("[inicia] TarefaApplicationService - deletaTarefasConcluidas");
+        Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(email);
+        Usuario usuario = usuarioRepository.buscaUsuarioPorId(idUsuario);
+        usuario.pertenceAoUsuario(usuarioPorEmail);
+        List<Tarefa> tarefasConcluidas = tarefaRepository.buscaTarefasConcluidas(usuario.getIdUsuario());
+        if(tarefasConcluidas.isEmpty()){
+            throw APIException.build(HttpStatus.NOT_FOUND,"Usuário não possui nenhuma tarefa concluída!");
+        }
+        tarefaRepository.deletaVariasTarefas(tarefasConcluidas);
+        List<Tarefa> tarefasDoUsuario = tarefaRepository.buscarTarefasPorIdUsuario(usuario.getIdUsuario());
+        tarefaRepository.atualizaPosicaoDasTarefas(tarefasDoUsuario);
+        log.info("[finaliza] TarefaApplicationService - deletaTarefasConcluidas");
     }
 
     @Override
