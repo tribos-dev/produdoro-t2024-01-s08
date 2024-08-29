@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import dev.wakandaacademy.produdoro.handler.APIException;
+import dev.wakandaacademy.produdoro.tarefa.application.api.NovaPosicaoRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
@@ -27,7 +28,7 @@ public class TarefaApplicationService implements TarefaService {
     @Override
     public TarefaIdResponse criaNovaTarefa(TarefaRequest tarefaRequest) {
         log.info("[inicia] TarefaApplicationService - criaNovaTarefa");
-        int novaPosicao = tarefaRepository.contarTarefas(tarefaRequest.getIdUsuario());
+        int novaPosicao = tarefaRepository.novaPosicao(tarefaRequest.getIdUsuario());
         Tarefa tarefaCriada = tarefaRepository.salva(new Tarefa(tarefaRequest, novaPosicao));
         log.info("[finaliza] TarefaApplicationService - criaNovaTarefa");
         return TarefaIdResponse.builder().idTarefa(tarefaCriada.getIdTarefa()).build();
@@ -44,6 +45,16 @@ public class TarefaApplicationService implements TarefaService {
         log.info("[finaliza] TarefaApplicationService - detalhaTarefa");
         return tarefa;
     }
+    
+	@Override
+	public void modificaOrdemTarefa(String emailUsuario, NovaPosicaoRequest novaPosicaoRequest, UUID idTarefa) {
+        log.info("[inicia] TarefaApplicationService - modificaOrdemTarefa");
+        Tarefa tarefa = detalhaTarefa(emailUsuario, idTarefa);
+        tarefaRepository.modificaOrdemTarefa(tarefa, novaPosicaoRequest);
+        tarefa.editaNovaPosicao(novaPosicaoRequest.getNovaPosicao());
+        tarefaRepository.salva(tarefa);
+        log.info("[finaliza] TarefaApplicationService - modificaOrdemTarefa");
+	}
 
 	@Override
 	public void deletaTodasTarefas(String emailUsuario, UUID idUsuario) {

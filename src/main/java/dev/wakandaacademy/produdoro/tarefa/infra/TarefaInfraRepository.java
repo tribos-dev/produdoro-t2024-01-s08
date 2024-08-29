@@ -3,6 +3,9 @@ package dev.wakandaacademy.produdoro.tarefa.infra;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.repository.TarefaRepository;
@@ -21,9 +24,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 
+import dev.wakandaacademy.produdoro.tarefa.application.api.NovaPosicaoRequest;
 import dev.wakandaacademy.produdoro.tarefa.domain.StatusAtivacaoTarefa;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Repository
 @Log4j2
@@ -103,6 +105,66 @@ public class TarefaInfraRepository implements TarefaRepository {
         log.info("[finaliza] TarefaInfraRepository - buscarTarefasPorIdUsuario");
         return todasTarefas;
     }
+    
+	@Override
+	public int novaPosicao(UUID idUsuario) {
+        log.info("[inicia] TarefaInfraRepository - novaPosicao");
+        List<Tarefa> tarefas = buscaTarefasUsuarioPorId(idUsuario);
+        log.info("[finaliza] TarefaInfraRepository - novaPosicao");
+		return tarefas.size();
+	}
+	
+	private List<Tarefa> buscaTarefasUsuarioPorId(UUID idUsuario) {
+        log.info("[inicia] TarefaInfraRepository - buscaTarefasUsuarioPorId");
+		List<Tarefa> tarefas = tarefaSpringMongoDBRepository.findAllByIdUsuarioOrderByPosicaoAsc(idUsuario);
+        log.info("[finaliza] TarefaInfraRepository - buscaTarefasUsuarioPorId");
+		return tarefas;
+	}
+	
+	@Override
+	public void modificaOrdemTarefa(Tarefa tarefa, NovaPosicaoRequest novaPosicaoRequest) {
+        log.info("[inicia] TarefaInfraRepository - modificaOrdemTarefa");
+        List<Tarefa> tarefas = buscaTarefasUsuarioPorId(tarefa.getIdUsuario());
+        validaNovaPosicao(tarefas.size(), tarefa.getPosicao(), novaPosicaoRequest.getNovaPosicao());
+        int menorPosicao = Math.min(tarefa.getPosicao(), novaPosicaoRequest.getNovaPosicao());
+        int maiorPosicao = Math.max(tarefa.getPosicao(), novaPosicaoRequest.getNovaPosicao());
+        salvaVariasTarefas(tarefas, tarefa.getPosicao(), novaPosicaoRequest.getNovaPosicao(), menorPosicao, maiorPosicao);
+        log.info("[finaliza] TarefaInfraRepository - modificaOrdemTarefa");
+	}
+	
+	private void salvaVariasTarefas(List<Tarefa> tarefas, int origem, int destino, int menorPosicao, int maiorPosicao) {        
+		log.info("[inicia] TarefaInfraRepository - salvaVariasTarefas");
+		List<Tarefa> tarefasAtualizadas = IntStream.range(menorPosicao, maiorPosicao)
+                .mapToObj(posicao -> {
+                    return novaPosicaoTarefa(tarefas, origem, destino, posicao);
+                })
+                .collect(Collectors.toList());
+        log.info("[finaliza] TarefaInfraRepository - salvaVariasTarefas");
+        tarefaSpringMongoDBRepository.saveAll(tarefasAtualizadas);
+	}
+	
+	private Tarefa novaPosicaoTarefa(List<Tarefa> tarefas, int origem, int destino, int posicao) {
+        log.info("[inicia] TarefaInfraRepository - novaPosicaoTarefa");
+		Tarefa tarefa = destino < origem  ? atualizaTarefa(tarefas.get(posicao), posicao + 1) :  atualizaTarefa(tarefas.get(posicao + 1), posicao);
+        log.info("[finaliza] TarefaInfraRepository - novaPosicaoTarefa");
+		return tarefa;
+	}
+	
+	private Tarefa atualizaTarefa(Tarefa tarefa, int novaPosicao) {
+        log.info("[inicia] TarefaInfraRepository - atualizaTarefa");
+        tarefa.editaNovaPosicao(novaPosicao);
+        log.info("[finaliza] TarefaInfraRepository - atualizaTarefa");
+		return tarefa;
+	}
+	
+	private void validaNovaPosicao(int tamanhoLista, int posicaoOrigem, int novaPosicao) {
+        log.info("[inicia] TarefaInfraRepository - validaNovaPosicao");
+        Optional.of(posicaoOrigem)
+        	.filter(posicao -> posicao >= 0 && posicao < tamanhoLista)
+        	.filter(posicao -> posicao != novaPosicao)
+        	.orElseThrow(() -> APIException.build(HttpStatus.BAD_REQUEST, "Posição inválida."));
+        log.info("[finaliza] TarefaInfraRepository - validaNovaPosicao");
+	}
 
     @Override
     public void processaStatusEContadorPomodoro(Usuario usuarioPorEmail) {
