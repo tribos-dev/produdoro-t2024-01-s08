@@ -107,7 +107,7 @@ public class TarefaInfraRepository implements TarefaRepository {
                 this.contagemPomodoroPausaCurta = 0;
             }
         } else {
-            usuarioPorEmail.alteraStatusParaFoco(usuarioPorEmail.getIdUsuario());
+            usuarioPorEmail.mudaStatusParaFoco(usuarioPorEmail.getIdUsuario());
             this.contagemPomodoroPausaCurta++;
         }
         Query query = Query.query(Criteria.where("idUsuario").is(usuarioPorEmail.getIdUsuario()));
