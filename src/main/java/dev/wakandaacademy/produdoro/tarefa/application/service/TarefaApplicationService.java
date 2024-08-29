@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import dev.wakandaacademy.produdoro.handler.APIException;
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaAlteracaoRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.NovaPosicaoRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
@@ -113,6 +114,16 @@ public class TarefaApplicationService implements TarefaService {
     }
 
     @Override
+
+    public void editaTarefa(String email, UUID idTarefa, TarefaAlteracaoRequest tarefaAlteracaoRequest) {
+        log.info("[inicia] TarefaApplicationService - editaTarefa");
+        Tarefa tarefa = detalhaTarefa(email, idTarefa);
+        tarefa.editaTarefa(tarefaAlteracaoRequest);
+        tarefaRepository.salva(tarefa);
+        log.info("[finish] TarefaApplicationService - editaTarefa");
+    }
+
+    @Override
     public void concluiTarefa(String email, UUID idTarefa) {
         log.info("[inicia] TarefaApplicationService - concluiTarefa");
         Tarefa tarefa = detalhaTarefa(email, idTarefa);
@@ -130,5 +141,7 @@ public class TarefaApplicationService implements TarefaService {
         tarefaRepository.salva(tarefa);
         tarefaRepository.processaStatusEContadorPomodoro(usuarioPorEmail);
         log.info("[finish] - TarefaApplicationService - incrementaPomodoro");
+
     }
 }
+
