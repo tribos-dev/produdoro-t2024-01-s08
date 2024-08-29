@@ -1,5 +1,6 @@
 package dev.wakandaacademy.produdoro.tarefa.application.service;
 
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaDetalhadaListResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaAlteracaoRequest;
 import java.util.UUID;
 
@@ -7,6 +8,8 @@ import dev.wakandaacademy.produdoro.tarefa.application.api.NovaPosicaoRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
+
+import java.util.List;
 
 public interface TarefaService {
     TarefaIdResponse criaNovaTarefa(TarefaRequest tarefaRequest);
@@ -18,4 +21,6 @@ public interface TarefaService {
     void deletaTarefasConcluidas(String email, UUID idUsuario);
     void concluiTarefa(String email, UUID idTarefa);
     void incrementaPomodoro(String usuario, UUID idTarefa);
+
+    List<TarefaDetalhadaListResponse> listaTodasTarefasDoUsuario(String email, UUID idUsuario);
 }

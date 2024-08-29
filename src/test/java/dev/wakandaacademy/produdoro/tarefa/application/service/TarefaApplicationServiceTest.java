@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaDetalhadaListResponse;
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.api.NovaPosicaoRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
@@ -35,7 +36,6 @@ import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioRepository;
 import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TarefaApplicationServiceTest {
@@ -165,6 +165,36 @@ class TarefaApplicationServiceTest {
                         .descricao(requestAlterada)
                 .build());
         assertEquals("minha request alterada", tarefa.getDescricao());
+    }
+
+    @Test
+    void deveListarTodasAsTarefasDoUsuario() {
+        //dado
+        Usuario usuario = DataHelper.createUsuario();
+        List<Tarefa> tarefas = DataHelper.createListTarefa();
+        //quando
+        when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
+        when(usuarioRepository.buscaUsuarioPorId(any())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefasDoIdUsuario(usuario.getIdUsuario())).thenReturn(tarefas);
+        List<TarefaDetalhadaListResponse> listaTodasTarefasDoUsuario = tarefaApplicationService.listaTodasTarefasDoUsuario(usuario.getEmail(), usuario.getIdUsuario());
+        //então
+        assertEquals(8, listaTodasTarefasDoUsuario.size());
+        verify(tarefaRepository, times(1)).buscaTarefasDoIdUsuario(usuario.getIdUsuario());
+    }
+    
+    @Test
+    void deveRetornarListasVaziasDoUsuario() {
+        //dado
+        Usuario usuario = DataHelper.createUsuario();
+        List<Tarefa> tarefas = DataHelper.createListTarefaVazia();
+        //quando
+        when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
+        when(usuarioRepository.buscaUsuarioPorId(any())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefasDoIdUsuario(usuario.getIdUsuario())).thenReturn(tarefas);
+        List<TarefaDetalhadaListResponse> listaTodasTarefasDoUsuario = tarefaApplicationService.listaTodasTarefasDoUsuario(usuario.getEmail(), usuario.getIdUsuario());
+        //então
+        assertEquals(0, listaTodasTarefasDoUsuario.size());
+        verify(tarefaRepository, times(1)).buscaTarefasDoIdUsuario(usuario.getIdUsuario());
     }
     
     public NovaPosicaoRequest getNovaPosicaoRequest() {

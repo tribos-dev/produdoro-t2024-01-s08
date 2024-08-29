@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import dev.wakandaacademy.produdoro.handler.APIException;
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaDetalhadaListResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaAlteracaoRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.NovaPosicaoRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
@@ -142,6 +143,17 @@ public class TarefaApplicationService implements TarefaService {
         tarefaRepository.processaStatusEContadorPomodoro(usuarioPorEmail);
         log.info("[finish] - TarefaApplicationService - incrementaPomodoro");
 
+    }
+
+    @Override
+    public List<TarefaDetalhadaListResponse> listaTodasTarefasDoUsuario(String email, UUID idUsuario) {
+        log.info("[inicia] TarefaApplicationService - listaTodasTarefasDoUsuario");
+        Usuario usuario = usuarioRepository.buscaUsuarioPorEmail(email);
+        usuarioRepository.buscaUsuarioPorId(idUsuario);
+        usuario.validaUsuario(idUsuario);
+        List<Tarefa> tarefas = tarefaRepository.buscaTarefasDoIdUsuario(idUsuario);
+        log.info("[Finish] TarefaApplicationService - listaTodasTarefasDoUsuario");
+        return TarefaDetalhadaListResponse.converte(tarefas);
     }
 }
 

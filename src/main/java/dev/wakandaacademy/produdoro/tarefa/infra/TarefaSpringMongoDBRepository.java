@@ -13,8 +13,8 @@ import dev.wakandaacademy.produdoro.tarefa.domain.StatusAtivacaoTarefa;
 
 public interface TarefaSpringMongoDBRepository extends MongoRepository<Tarefa, UUID> {
     Optional<Tarefa> findByIdTarefa(UUID idTarefa);
-	List<Tarefa> findAllByIdUsuarioOrderByPosicaoAsc(UUID idUsuario);
     List<Tarefa> findAllByIdUsuario(UUID idUsuario);
+	List<Tarefa> findAllByIdUsuarioOrderByPosicaoAsc(UUID idUsuario);
     @Query("{ 'statusAtivacao' : ?0, 'idUsuario' : ?1 }")
     Optional<Tarefa> buscaTarefaJaAtiva(StatusAtivacaoTarefa statusAtivacaoTarefa, UUID idUsuario);
     List<Tarefa> findAllByIdUsuarioOrderByPosicao(UUID idUsuario);
