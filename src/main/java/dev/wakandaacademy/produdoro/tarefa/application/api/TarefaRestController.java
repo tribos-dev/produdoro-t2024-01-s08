@@ -41,6 +41,21 @@ public class TarefaRestController implements TarefaAPI {
         tarefaService.editaTarefa(email, idTarefa, tarefaAlteracaoRequest);
         log.info("[finish] TarefaRestController - editaTarefa");
     }
+	@Override
+	public void deletaTodasSuasTarefas(String token, UUID idUsuario) {
+		log.info("[inicia] TarefaRestController - deletaTodasSuasTarefas");
+		String emailUsuario = getUsuarioByToken(token);
+		tarefaService.deletaTodasTarefas(emailUsuario, idUsuario);
+		log.info("[finaliza] TarefaRestController - deletaTodasSuasTarefas");
+	}
+
+	@Override
+	public void deletaTarefasConcluidas(String token, UUID idUsuario) {
+		log.info("[inicia] TarefaRestController - deletaTarefasConcluidas");
+		String email = getUsuarioByToken(token);
+		tarefaService.deletaTarefasConcluidas(email, idUsuario);
+		log.info("[finaliza] TarefaRestController - deletaTarefasConcluidas");
+	}
 
     @Override
     public void concluiTarefa(String token, UUID idTarefa) {
@@ -66,5 +81,22 @@ public class TarefaRestController implements TarefaAPI {
         log.info("[usuario] {}", usuario);
         return usuario;
     }
+
+	@Override
+	public void modificaOrdemTarefa(String token, NovaPosicaoRequest novaPosicaoRequest, UUID idTarefa) {
+		log.info("[inicia] TarefaRestController - modificaOrdemTarefa");
+		String emailUsuario = getUsuarioByToken(token);
+		tarefaService.modificaOrdemTarefa(emailUsuario, novaPosicaoRequest, idTarefa);
+		log.info("[finaliza] TarefaRestController - modificaOrdemTarefa");
+	}
+
+	@Override
+	public void defineTarefaComoAtiva(String token, UUID idTarefa) {
+		log.info("[inicia] TarefaRestController - defineTarefaComoAtiva");
+		String usuarioEmail = getUsuarioByToken(token);
+		tarefaService.defineTarefaComoAtiva(idTarefa, usuarioEmail);
+		log.info("[finaliza] TarefaRestController - defineTarefaComoAtiva");
+		
+	}
 
 }
