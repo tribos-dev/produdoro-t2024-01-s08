@@ -88,4 +88,26 @@ class UsuarioApplicationServiceTest {
         assertEquals(HttpStatus.UNAUTHORIZED, ex.getStatusException());
     }
 
+    @Test
+    void deveMudarParaFoco_QuandoStatusEstiverDiferenteDeFoco() {
+        //dado
+        Usuario usuario = DataHelper.createUsuario();
+        // quando
+        when(usuarioRepository.buscaUsuarioPorEmail(anyString())).thenReturn(usuario);
+        when(usuarioRepository.buscaUsuarioPorId(any())).thenReturn(usuario);
+        usuarioApplicationService.mudaStatusParaFoco(usuario.getEmail(), usuario.getIdUsuario());
+        // entao
+        assertEquals(StatusUsuario.FOCO, usuario.getStatus());
+        verify(usuarioRepository, times(1)).salva(usuario);
+    }
+
+    @Test
+    void naoDeveMudarStatusParaFoco_QuandoPassarIdUsuarioInvalido() {
+        Usuario usuario = DataHelper.createUsuario();
+        UUID idUsuario = UUID.fromString("ce138189-3651-4c12-950e-24fe7b7a4417");
+        when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
+        APIException e = assertThrows(APIException.class,
+                () -> usuarioApplicationService.mudaStatusParaFoco(usuario.getEmail(), idUsuario));
+        assertEquals(HttpStatus.UNAUTHORIZED, e.getStatusException());
+    }
 }

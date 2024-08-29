@@ -4,12 +4,10 @@ import java.util.UUID;
 
 import javax.validation.constraints.NotBlank;
 
+import dev.wakandaacademy.produdoro.handler.APIException;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.http.HttpStatus;
-
-import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
 import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
@@ -18,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 @Builder
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -51,7 +50,6 @@ public class Tarefa {
 		this.contagemPomodoro = 1;
 		this.posicao = posicao;
 	}
-
 	public void pertenceAoUsuario(Usuario usuarioPorEmail) {
 		if (!this.idUsuario.equals(usuarioPorEmail.getIdUsuario())) {
 			throw APIException.build(HttpStatus.UNAUTHORIZED, "Usuário não é dono da Tarefa solicitada!");
@@ -62,6 +60,19 @@ public class Tarefa {
 		this.posicao = novaPosicao;
 	}
 	
+	public void defineComoAtiva() {
+		if (this.statusAtivacao.equals(StatusAtivacaoTarefa.INATIVA)) {
+			statusAtivacao = StatusAtivacaoTarefa.ATIVA;
+		}
+
+	}
+
+	public void defineComoInativa() {
+		if (this.statusAtivacao.equals(StatusAtivacaoTarefa.ATIVA)) {
+			statusAtivacao = StatusAtivacaoTarefa.INATIVA;
+		}
+	}
+
 	public void concluiTarefa() {
 		this.status = StatusTarefa.CONCLUIDA;
 	}
@@ -71,4 +82,8 @@ public class Tarefa {
 			this.contagemPomodoro++;
 		}
 	}
+
+    public void atualizaPosicao(int novaPosicao) {
+		this.posicao = novaPosicao;
+    }
 }
