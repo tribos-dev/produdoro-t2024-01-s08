@@ -11,11 +11,22 @@ import java.util.UUID;
 public interface TarefaRepository {
 
     Tarefa salva(Tarefa tarefa);
+
     Optional<Tarefa> buscaTarefaPorId(UUID idTarefa);
+
+    List<Tarefa> buscaTarefaPorUsuario(UUID idUsuario);
+
+    Optional<Tarefa> buscaTarefaJaAtiva(UUID idUsuario);
+
     List<Tarefa> buscaTarefasConcluidas(UUID idUsuario);
+
     void deletaVariasTarefas(List<Tarefa> tarefasConcluidas);
+
     List<Tarefa> buscarTarefasPorIdUsuario(UUID idUsuario);
+
     void processaStatusEContadorPomodoro(Usuario usuarioPorEmail);
+
     void atualizaPosicaoDasTarefas(List<Tarefa> tarefasDoUsuario);
+
     int contarTarefas(@NonNull UUID idUsuario);
 }

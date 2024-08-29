@@ -1,5 +1,12 @@
 package dev.wakandaacademy.produdoro.tarefa.application.service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaRequest;
@@ -9,11 +16,6 @@ import dev.wakandaacademy.produdoro.usuario.application.repository.UsuarioReposi
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 @Log4j2
@@ -44,14 +46,38 @@ public class TarefaApplicationService implements TarefaService {
     }
 
     @Override
+    public void defineTarefaComoAtiva(UUID idTarefa, String usuarioEmail) {
+        log.info("[inicia] TarefaApplicationService - defineTarefaComoAtiva");
+        Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(usuarioEmail);
+        Tarefa tarefa = validarTarefa(idTarefa, usuarioPorEmail);
+        Optional<Tarefa> tarefaJaAtiva = tarefaRepository.buscaTarefaJaAtiva(usuarioPorEmail.getIdUsuario());
+        tarefaJaAtiva.ifPresent(tarefaAtiva -> {
+            tarefaAtiva.defineComoInativa();
+            tarefaRepository.salva(tarefaAtiva);
+        });
+        tarefa.defineComoAtiva();
+        tarefaRepository.salva(tarefa);
+        log.info("[finaliza] TarefaApplicationService - defineTarefaComoAtiva");
+
+    }
+
+    private Tarefa validarTarefa(UUID idTarefa, Usuario usuarioEmail) {
+        Tarefa tarefa = tarefaRepository.buscaTarefaPorId(idTarefa)
+                .orElseThrow(() -> APIException.build(HttpStatus.NOT_FOUND, "Id Da Tarefa Inválido"));
+        tarefa.pertenceAoUsuario(usuarioEmail);
+        return tarefa;
+
+    }
+
+    @Override
     public void deletaTarefasConcluidas(String email, UUID idUsuario) {
         log.info("[inicia] TarefaApplicationService - deletaTarefasConcluidas");
         Usuario usuarioPorEmail = usuarioRepository.buscaUsuarioPorEmail(email);
         Usuario usuario = usuarioRepository.buscaUsuarioPorId(idUsuario);
         usuario.pertenceAoUsuario(usuarioPorEmail);
         List<Tarefa> tarefasConcluidas = tarefaRepository.buscaTarefasConcluidas(usuario.getIdUsuario());
-        if(tarefasConcluidas.isEmpty()){
-            throw APIException.build(HttpStatus.NOT_FOUND,"Usuário não possui nenhuma tarefa concluída!");
+        if (tarefasConcluidas.isEmpty()) {
+            throw APIException.build(HttpStatus.NOT_FOUND, "Usuário não possui nenhuma tarefa concluída!");
         }
         tarefaRepository.deletaVariasTarefas(tarefasConcluidas);
         List<Tarefa> tarefasDoUsuario = tarefaRepository.buscarTarefasPorIdUsuario(usuario.getIdUsuario());
