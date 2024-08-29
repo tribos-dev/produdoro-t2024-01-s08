@@ -34,25 +34,33 @@ public class TarefaInfraRepository implements TarefaRepository {
     private final MongoTemplate mongoTemplate;
     private Integer contagemPomodoroPausaCurta = 0;
 
-    @Override
-    public Tarefa salva(Tarefa tarefa) {
-        log.info("[inicia] TarefaInfraRepository - salva");
-        try {
-            tarefaSpringMongoDBRepository.save(tarefa);
-        } catch (DataIntegrityViolationException e) {
-            throw APIException.build(HttpStatus.BAD_REQUEST, "Tarefa já cadastrada", e);
-        }
-        log.info("[finaliza] TarefaInfraRepository - salva");
-        return tarefa;
-    }
+	@Override
+	public Tarefa salva(Tarefa tarefa) {
+		log.info("[inicia] TarefaInfraRepository - salva");
+		try {
+			tarefaSpringMongoDBRepository.save(tarefa);
+		} catch (DataIntegrityViolationException e) {
+			throw APIException.build(HttpStatus.BAD_REQUEST, "Tarefa já cadastrada", e);
+		}
+		log.info("[finaliza] TarefaInfraRepository - salva");
+		return tarefa;
+	}
 
-    @Override
-    public Optional<Tarefa> buscaTarefaPorId(UUID idTarefa) {
-        log.info("[inicia] TarefaInfraRepository - buscaTarefaPorId");
-        Optional<Tarefa> tarefaPorId = tarefaSpringMongoDBRepository.findByIdTarefa(idTarefa);
-        log.info("[finaliza] TarefaInfraRepository - buscaTarefaPorId");
-        return tarefaPorId;
-    }
+	@Override
+	public Optional<Tarefa> buscaTarefaPorId(UUID idTarefa) {
+		log.info("[inicia] TarefaInfraRepository - buscaTarefaPorId");
+		Optional<Tarefa> tarefaPorId = tarefaSpringMongoDBRepository.findByIdTarefa(idTarefa);
+		log.info("[finaliza] TarefaInfraRepository - buscaTarefaPorId");
+		return tarefaPorId;
+	}
+
+	@Override
+	public void deletaTodasTarefas(List<Tarefa> tarefasUsuario) {
+		log.info("[inicia] TarefaInfraRepository - deletaTodasTarefas");
+		tarefaSpringMongoDBRepository.deleteAll(tarefasUsuario);
+		log.info("[finaliza] TarefaInfraRepository - deletaTodasTarefas");
+
+	}
 
     @Override
     public List<Tarefa> buscaTarefaPorUsuario(UUID idUsuario) {
