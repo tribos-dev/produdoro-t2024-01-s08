@@ -1,5 +1,7 @@
 package dev.wakandaacademy.produdoro.tarefa.application.service;
 
+import dev.wakandaacademy.produdoro.DataHelper;
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaAlteracaoRequest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,7 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 
-import dev.wakandaacademy.produdoro.DataHelper;
+import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaDetalhadaListResponse;
 import dev.wakandaacademy.produdoro.handler.APIException;
 import dev.wakandaacademy.produdoro.tarefa.application.api.NovaPosicaoRequest;
 import dev.wakandaacademy.produdoro.tarefa.application.api.TarefaIdResponse;
@@ -144,6 +146,55 @@ class TarefaApplicationServiceTest {
         tarefaApplicationService.modificaOrdemTarefa(usuario.getEmail(), novaPosicaoRequest, tarefa.getIdTarefa());
         
         verify(tarefaRepository, times(1)).salva(tarefa);
+    }
+
+    @Test
+    void deveRetornarTarefaAlterada() {
+        Usuario usuario = DataHelper.createUsuario();
+        Tarefa tarefa = Tarefa.builder()
+                .idTarefa(UUID.randomUUID())
+                .descricao("edita")
+                .status(StatusTarefa.A_FAZER)
+                .idUsuario(usuario.getIdUsuario())
+                .build();
+        String requestAlterada = "minha request alterada";
+        when(usuarioRepository.buscaUsuarioPorEmail(usuario.getEmail())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefaPorId(tarefa.getIdTarefa())).thenReturn(Optional.of(tarefa));
+        when(tarefaRepository.salva(tarefa)).thenReturn(tarefa);
+        tarefaApplicationService.editaTarefa(usuario.getEmail(), tarefa.getIdTarefa(), TarefaAlteracaoRequest.builder()
+                        .descricao(requestAlterada)
+                .build());
+        assertEquals("minha request alterada", tarefa.getDescricao());
+    }
+
+    @Test
+    void deveListarTodasAsTarefasDoUsuario() {
+        //dado
+        Usuario usuario = DataHelper.createUsuario();
+        List<Tarefa> tarefas = DataHelper.createListTarefa();
+        //quando
+        when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
+        when(usuarioRepository.buscaUsuarioPorId(any())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefasDoIdUsuario(usuario.getIdUsuario())).thenReturn(tarefas);
+        List<TarefaDetalhadaListResponse> listaTodasTarefasDoUsuario = tarefaApplicationService.listaTodasTarefasDoUsuario(usuario.getEmail(), usuario.getIdUsuario());
+        //então
+        assertEquals(8, listaTodasTarefasDoUsuario.size());
+        verify(tarefaRepository, times(1)).buscaTarefasDoIdUsuario(usuario.getIdUsuario());
+    }
+    
+    @Test
+    void deveRetornarListasVaziasDoUsuario() {
+        //dado
+        Usuario usuario = DataHelper.createUsuario();
+        List<Tarefa> tarefas = DataHelper.createListTarefaVazia();
+        //quando
+        when(usuarioRepository.buscaUsuarioPorEmail(any())).thenReturn(usuario);
+        when(usuarioRepository.buscaUsuarioPorId(any())).thenReturn(usuario);
+        when(tarefaRepository.buscaTarefasDoIdUsuario(usuario.getIdUsuario())).thenReturn(tarefas);
+        List<TarefaDetalhadaListResponse> listaTodasTarefasDoUsuario = tarefaApplicationService.listaTodasTarefasDoUsuario(usuario.getEmail(), usuario.getIdUsuario());
+        //então
+        assertEquals(0, listaTodasTarefasDoUsuario.size());
+        verify(tarefaRepository, times(1)).buscaTarefasDoIdUsuario(usuario.getIdUsuario());
     }
     
     public NovaPosicaoRequest getNovaPosicaoRequest() {

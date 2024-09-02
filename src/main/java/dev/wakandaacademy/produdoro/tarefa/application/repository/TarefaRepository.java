@@ -16,6 +16,7 @@ public interface TarefaRepository {
 	int novaPosicao(UUID idUsuario);
 	void modificaOrdemTarefa(Tarefa tarefa, NovaPosicaoRequest novaPosicaoRequest);
 	List<Tarefa> buscaTarefaPorUsuario(UUID idUsuario);
+    List<Tarefa> buscaTarefasDoIdUsuario(UUID idUsuario);
 	void deletaTodasTarefas(List<Tarefa> tarefasUsuario);
     void processaStatusEContadorPomodoro(Usuario usuarioPorEmail);
     Optional<Tarefa> buscaTarefaJaAtiva(UUID idUsuario);

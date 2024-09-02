@@ -13,7 +13,6 @@ import dev.wakandaacademy.produdoro.tarefa.domain.StatusTarefa;
 import dev.wakandaacademy.produdoro.tarefa.domain.Tarefa;
 import dev.wakandaacademy.produdoro.usuario.domain.StatusUsuario;
 import dev.wakandaacademy.produdoro.usuario.domain.Usuario;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -184,6 +183,13 @@ public class TarefaInfraRepository implements TarefaRepository {
         Update updateUsuario = Update.update("status", usuarioPorEmail.getStatus());
         mongoTemplate.updateMulti(query, updateUsuario, Usuario.class);
         log.info("[finaliza] - TarefaInfraRepository - processaStatusEContadorPomodoro");
+    }
+    @Override
+    public List<Tarefa> buscaTarefasDoIdUsuario(UUID idUsuario) {
+        log.info("[inicia] TarefaInfraRepository - buscaTarefasDoIdUsuario");
+        List<Tarefa> tarefas = tarefaSpringMongoDBRepository.findAllByIdUsuarioOrderByPosicao(idUsuario);
+        log.info("[finaliza] TarefaInfraRepository - buscaTarefasDoIdUsuario");
+        return tarefas;
     }
 
     @Override
